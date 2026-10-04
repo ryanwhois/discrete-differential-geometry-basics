@@ -164,5 +164,22 @@ namespace DDGCompanion.Tests
             var mesh = new Mesh();
             Assert.Throws<ArgumentException>(() => mesh.Build(positions, faces));
         }
+
+        [Fact]
+        public void TestValidationIsScaleRelative()
+        {
+            var positions = new[]
+            {
+                new Vector3(0, 0, 0),
+                new Vector3(1e-8f, 0, 0),
+                new Vector3(0, 1e-8f, 0)
+            };
+            var faces = new int[,] { { 0, 1, 2 } };
+            var mesh = new Mesh();
+
+            mesh.Build(positions, faces);
+
+            Assert.Empty(mesh.Validate());
+        }
     }
 }

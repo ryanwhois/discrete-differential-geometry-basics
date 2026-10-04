@@ -184,8 +184,22 @@ namespace DDGCompanion.Core
                     errors.Add($"Halfedge {he.Index} and its twin do not share an edge.");
             }
             foreach (var face in Faces)
-                if (face.Vertices().Count != 3 || face.Area() <= 1e-12)
+            {
+                var vertices = face.Vertices();
+                if (vertices.Count != 3)
+                {
                     errors.Add($"Face {face.Index} is degenerate or non-triangular.");
+                    continue;
+                }
+
+                var e01 = vertices[1].Position - vertices[0].Position;
+                var e02 = vertices[2].Position - vertices[0].Position;
+                var e12 = vertices[2].Position - vertices[1].Position;
+                float maxEdgeSquared = MathF.Max(e01.LengthSquared(), MathF.Max(e02.LengthSquared(), e12.LengthSquared()));
+                float twiceArea = Vector3.Cross(e01, e02).Length();
+                if (maxEdgeSquared == 0.0f || twiceArea <= 1e-6f * maxEdgeSquared)
+                    errors.Add($"Face {face.Index} is degenerate or non-triangular.");
+            }
             return errors;
         }
         

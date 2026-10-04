@@ -159,3 +159,16 @@ TEST_CASE("Invalid topology is rejected", "[mesh][validation]") {
     Mesh mesh;
     REQUIRE_THROWS(mesh.build(V, duplicateDirected));
 }
+
+TEST_CASE("Mesh validation is scale relative", "[mesh][validation]") {
+    Eigen::MatrixXd V(3, 3);
+    V << 0, 0, 0,
+         1e-8, 0, 0,
+         0, 1e-8, 0;
+    Eigen::MatrixXi F(1, 3);
+    F << 0, 1, 2;
+
+    Mesh mesh;
+    REQUIRE_NOTHROW(mesh.build(V, F));
+    REQUIRE(mesh.validate().empty());
+}

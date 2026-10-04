@@ -138,7 +138,20 @@ std::vector<std::string> Mesh::validate() const {
         if (he->edge != he->twin->edge) errors.emplace_back("Twin halfedges do not share an edge");
     }
     for (const auto& face : faces) {
-        if (!face->isTriangle() || face->area() <= 1e-14) errors.emplace_back("Degenerate or non-triangular face");
+        if (!face->isTriangle()) {
+            errors.emplace_back("Degenerate or non-triangular face");
+            continue;
+        }
+
+        const auto verts = face->vertices();
+        const Eigen::Vector3d e01 = verts[1]->position - verts[0]->position;
+        const Eigen::Vector3d e02 = verts[2]->position - verts[0]->position;
+        const Eigen::Vector3d e12 = verts[2]->position - verts[1]->position;
+        const double maxEdgeSquared = std::max({e01.squaredNorm(), e02.squaredNorm(), e12.squaredNorm()});
+        const double twiceArea = e01.cross(e02).norm();
+        if (maxEdgeSquared == 0.0 || twiceArea <= 1e-12 * maxEdgeSquared) {
+            errors.emplace_back("Degenerate or non-triangular face");
+        }
     }
     return errors;
 }

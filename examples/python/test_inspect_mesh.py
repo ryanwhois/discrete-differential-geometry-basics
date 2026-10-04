@@ -28,6 +28,21 @@ class MeshInspectorTests(unittest.TestCase):
         self.assertEqual(report.degenerate_faces, [0])
         self.assertFalse(report.valid)
 
+    def test_small_well_conditioned_face_is_valid(self):
+        vertices, faces = parse_obj(["v 0 0 0", "v 1e-8 0 0", "v 0 1e-8 0", "f 1 2 3"])
+        report = inspect_mesh(vertices, faces)
+        self.assertEqual(report.degenerate_faces, [])
+        self.assertTrue(report.valid)
+
+    def test_bow_tie_boundary_vertex_is_invalid(self):
+        vertices, faces = parse_obj(
+            ["v 0 0 0", "v 1 0 0", "v 0 1 0", "v -1 0 0", "v 0 -1 0", "f 1 2 3", "f 1 4 5"]
+        )
+        report = inspect_mesh(vertices, faces)
+        self.assertEqual(report.non_manifold_boundary_vertices, [0])
+        self.assertEqual(report.boundary_loops, 0)
+        self.assertFalse(report.valid)
+
 
 if __name__ == "__main__":
     unittest.main()

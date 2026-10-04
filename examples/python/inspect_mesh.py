@@ -21,11 +21,17 @@ class MeshReport:
     boundary_loops: int
     degenerate_faces: list[int]
     non_manifold_edges: list[tuple[int, int]]
+    non_manifold_boundary_vertices: list[int]
     orientation_conflicts: list[tuple[int, int]]
 
     @property
     def valid(self) -> bool:
-        return not (self.degenerate_faces or self.non_manifold_edges or self.orientation_conflicts)
+        return not (
+            self.degenerate_faces
+            or self.non_manifold_edges
+            or self.non_manifold_boundary_vertices
+            or self.orientation_conflicts
+        )
 
 
 def _index(token: str, vertex_count: int, line_number: int) -> int:
@@ -83,7 +89,14 @@ def inspect_mesh(
                 u[2] * v[0] - u[0] * v[2],
                 u[0] * v[1] - u[1] * v[0],
             )
-            if sum(component * component for component in cross) <= epsilon * epsilon:
+            edge_lengths_squared = (
+                sum(component * component for component in u),
+                sum(component * component for component in v),
+                sum((q[i] - r[i]) ** 2 for i in range(3)),
+            )
+            max_edge_squared = max(edge_lengths_squared)
+            cross_squared = sum(component * component for component in cross)
+            if max_edge_squared == 0.0 or cross_squared <= epsilon * epsilon * max_edge_squared * max_edge_squared:
                 degenerates.append(face_index)
         for source, target in ((a, b), (b, c), (c, a)):
             key = (min(source, target), max(source, target))
@@ -96,19 +109,23 @@ def inspect_mesh(
     for a, b in boundary:
         adjacency.setdefault(a, []).append(b)
         adjacency.setdefault(b, []).append(a)
+    non_manifold_boundary_vertices = sorted(vertex for vertex, neighbors in adjacency.items() if len(neighbors) != 2)
     seen: set[int] = set()
     loops = 0
     for start in adjacency:
         if start in seen:
             continue
-        loops += 1
         stack = [start]
+        component: set[int] = set()
         while stack:
             vertex = stack.pop()
             if vertex in seen:
                 continue
             seen.add(vertex)
+            component.add(vertex)
             stack.extend(adjacency.get(vertex, ()))
+        if all(len(adjacency[vertex]) == 2 for vertex in component):
+            loops += 1
 
     return MeshReport(
         vertices=len(vertices),
@@ -119,6 +136,7 @@ def inspect_mesh(
         boundary_loops=loops,
         degenerate_faces=degenerates,
         non_manifold_edges=non_manifold,
+        non_manifold_boundary_vertices=non_manifold_boundary_vertices,
         orientation_conflicts=conflicts,
     )
 
