@@ -37,5 +37,4 @@ jobs:
     
     - name: Run Tests
       run: |
-        cd src/cpp/build
-        ctest --output-on-failure
+        ctest --test-dir src/cpp/build --build-config ${{ matrix.build_type }} --output-on-failure
