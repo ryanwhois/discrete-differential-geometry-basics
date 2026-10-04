@@ -1,42 +1,26 @@
 # Next Release Plan
 
-## Recommended Version Bump
+## Release decision
 
-**Recommend: `1.1.1`**
+The current branch is a **v1.2.0 candidate**. It crosses the minor-release
+threshold by adding explicit boundary topology, reusable constrained solves,
+implemented Heat divergence, and a new interactive web application.
 
-Reasoning:
-- This pass focuses on stabilization, test/build reliability fixes, and documentation correctness.
-- No intentional breaking API redesign was introduced.
-- Major new capabilities like ARAP/Poisson infrastructure are not yet complete enough for `1.2.0`.
+## Release gates
 
-## Included in this stabilization pass
+1. All C++, C#, Python, and WASM workflows pass on the pull request.
+2. Closed tetrahedron and open disk invariants pass in both language cores.
+3. Cotan matrices remain symmetric with near-zero row sums.
+4. Open-disk curvature has a near-zero Gauss–Bonnet residual.
+5. The deployed workbench loads at both `/` and `/web/index.html`.
+6. No documentation describes deferred LSCM, harmonic bases, or ARAP as complete.
 
-- C++ build/test reliability fixes (test target correctness, warning policy improvements).
-- C# mesh robustness improvements and defensive traversal safety.
-- Test updates for oriented tetrahedra and invalid index rejection.
-- CI workflow alignment (action versions, .NET version, test path correctness).
-- Documentation audit and maturity relabeling.
+## Post-1.2 priorities
 
-## Outstanding Risks
+1. Establish versioned cross-language mesh fixtures and golden outputs.
+2. Replace dense constraint elimination with sparse reduced systems.
+3. Implement and validate true LSCM.
+4. Implement tree–cotree generators and harmonic bases.
+5. Add ARAP only after solver and parity infrastructure are stable.
 
-- Heat method and hodge decomposition remain partial/experimental.
-- Non-manifold and severe degeneracy handling is still incomplete.
-- Cross-language parity and numerical baseline tests are still limited.
-
-## Suggested GitHub Issues
-
-1. Add explicit mesh topology validator (orientation, manifoldness, duplicates).
-2. Add Poisson solver API with Dirichlet constraints and tests.
-3. Complete C# heat-method divergence stage.
-4. Improve Hodge star and harmonic basis implementations.
-5. Add stress tests for open meshes, disconnected meshes, and near-degenerate triangles.
-
-## Proposed Milestones
-
-### Milestone: v1.1.1
-- Reliability/documentation/test integrity fixes only.
-
-### Milestone: v1.2.0
-- Poisson solver infrastructure
-- ARAP scaffold
-- Expanded algorithm validation suite
+These are intentionally separate from the 1.2.0 release candidate.

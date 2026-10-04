@@ -38,6 +38,7 @@ namespace DDGCompanion.Core
             // Track halfedges by directed edge key and preserve endpoints.
             var halfedgeMap = new Dictionary<(int, int), HalfEdge>();
             var halfedgeEndpoints = new List<(int Source, int Target)>();
+            var undirectedCounts = new Dictionary<(int, int), int>();
             
             // Create faces and halfedges
             for (int i = 0; i < faceIndices.GetLength(0); i++)
@@ -58,6 +59,13 @@ namespace DDGCompanion.Core
                     {
                         throw new ArgumentException($"Face {i} contains a degenerate edge ({v0} -> {v1}).", nameof(faceIndices));
                     }
+                    if (halfedgeMap.ContainsKey((v0, v1)))
+                        throw new ArgumentException($"Duplicate directed edge {v0} -> {v1}. Check manifoldness and winding.", nameof(faceIndices));
+                    var undirected = v0 < v1 ? (v0, v1) : (v1, v0);
+                    undirectedCounts.TryGetValue(undirected, out int incidentCount);
+                    if (incidentCount >= 2)
+                        throw new ArgumentException($"Non-manifold edge {undirected.Item1}--{undirected.Item2}.", nameof(faceIndices));
+                    undirectedCounts[undirected] = incidentCount + 1;
                     
                     var he = new HalfEdge
                     {
@@ -82,50 +90,103 @@ namespace DDGCompanion.Core
                 Faces.Add(face);
             }
             
-            // Set twin pointers where reverse directed edge exists.
-            foreach (var (key, he) in halfedgeMap)
-            {
-                var (v0, v1) = key;
-                var twinKey = (v1, v0);
-
-                if (halfedgeMap.TryGetValue(twinKey, out var twin))
-                {
-                    he.Twin = twin;
-                }
-            }
-
-            // Create undirected edges independent of winding consistency.
-            var edgeMap = new Dictionary<(int, int), Edge>();
-            for (int i = 0; i < HalfEdges.Count; i++)
+            // Pair interior twins, add explicit boundary twins, and create every edge.
+            int interiorHalfEdgeCount = HalfEdges.Count;
+            for (int i = 0; i < interiorHalfEdgeCount; i++)
             {
                 var he = HalfEdges[i];
                 var (source, target) = halfedgeEndpoints[i];
-                var key = source < target ? (source, target) : (target, source);
-
-                if (!edgeMap.TryGetValue(key, out var edge))
+                if (he.Edge != null) continue;
+                if (halfedgeMap.TryGetValue((target, source), out var twin))
                 {
-                    edge = new Edge
+                    he.Twin = twin;
+                    twin.Twin = he;
+                }
+                else
+                {
+                    twin = new HalfEdge
                     {
-                        HalfEdge = he,
-                        Index = Edges.Count
+                        Vertex = Vertices[source],
+                        Twin = he,
+                        Index = HalfEdges.Count
                     };
-                    edgeMap[key] = edge;
-                    Edges.Add(edge);
+                    he.Twin = twin;
+                    HalfEdges.Add(twin);
                 }
 
+                var edge = new Edge { HalfEdge = he, Index = Edges.Count };
                 he.Edge = edge;
+                twin.Edge = edge;
+                Edges.Add(edge);
             }
-            
-            // Set vertex halfedges (outgoing representative per vertex).
-            for (int i = 0; i < HalfEdges.Count; i++)
+
+            // Each manifold boundary vertex has one outgoing boundary halfedge.
+            var boundaryBySource = new Dictionary<int, HalfEdge>();
+            foreach (var he in HalfEdges.Where(h => h.Face == null))
             {
-                var he = HalfEdges[i];
-                var (source, _) = halfedgeEndpoints[i];
-                if (Vertices[source].HalfEdge == null)
+                int source = he.Source()!.Index;
+                if (!boundaryBySource.TryAdd(source, he))
+                    throw new ArgumentException($"Boundary vertex {source} has multiple outgoing boundary edges.", nameof(faceIndices));
+            }
+            foreach (var he in boundaryBySource.Values)
+            {
+                if (!boundaryBySource.TryGetValue(he.Vertex!.Index, out var next))
+                    throw new ArgumentException("Boundary chain could not be closed.", nameof(faceIndices));
+                he.Next = next;
+            }
+
+            // Set outgoing representatives, preferring boundary halfedges.
+            foreach (var he in HalfEdges)
+            {
+                var source = he.Source();
+                if (source != null && (source.HalfEdge == null || he.Face == null))
+                    source.HalfEdge = he;
+            }
+
+            var errors = Validate();
+            if (errors.Count > 0) throw new ArgumentException(errors[0], nameof(faceIndices));
+        }
+
+        public List<List<Vertex>> BoundaryLoops()
+        {
+            var loops = new List<List<Vertex>>();
+            var visited = new HashSet<int>();
+            foreach (var start in HalfEdges.Where(h => h.Face == null))
+            {
+                if (visited.Contains(start.Index)) continue;
+                var loop = new List<Vertex>();
+                var he = start;
+                while (he != null && visited.Add(he.Index))
                 {
-                    Vertices[source].HalfEdge = he;
+                    if (he.Vertex == null) break;
+                    loop.Add(he.Vertex);
+                    he = he.Next;
+                    if (he == start)
+                    {
+                        loops.Add(loop);
+                        break;
+                    }
                 }
             }
+            return loops;
+        }
+
+        public List<string> Validate()
+        {
+            var errors = new List<string>();
+            foreach (var he in HalfEdges)
+            {
+                if (he.Vertex == null || he.Edge == null || he.Twin == null || he.Next == null)
+                    errors.Add($"Halfedge {he.Index} has an incomplete topology.");
+                else if (he.Twin.Twin != he)
+                    errors.Add($"Halfedge {he.Index} has a non-symmetric twin.");
+                else if (he.Edge != he.Twin.Edge)
+                    errors.Add($"Halfedge {he.Index} and its twin do not share an edge.");
+            }
+            foreach (var face in Faces)
+                if (face.Vertices().Count != 3 || face.Area() <= 1e-12)
+                    errors.Add($"Face {face.Index} is degenerate or non-triangular.");
+            return errors;
         }
         
         public int EulerCharacteristic() => Vertices.Count - Edges.Count + Faces.Count;
@@ -145,6 +206,7 @@ namespace DDGCompanion.Core
         
         public void Center()
         {
+            if (Vertices.Count == 0) return;
             var centroid = Vector3.Zero;
             foreach (var v in Vertices)
                 centroid += v.Position;

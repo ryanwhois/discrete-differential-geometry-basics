@@ -1,16 +1,18 @@
 #include "Vertex.h"
 #include "HalfEdge.h"
 #include "Face.h"
+#include <set>
 
 std::vector<Vertex*> Vertex::star() const {
     std::vector<Vertex*> neighbors;
     if (!halfedge) return neighbors;
     
     HalfEdge* he = halfedge;
-    do {
-        neighbors.push_back(he->next->vertex);
-        he = he->twin->next;
-    } while (he != halfedge);
+    std::set<const HalfEdge*> visited;
+    while (he && visited.insert(he).second) {
+        if (he->target()) neighbors.push_back(he->target());
+        he = he->twin ? he->twin->next : nullptr;
+    }
     
     return neighbors;
 }
@@ -18,24 +20,13 @@ std::vector<Vertex*> Vertex::star() const {
 int Vertex::degree() const {
     if (!halfedge) return 0;
     
-    int count = 0;
-    HalfEdge* he = halfedge;
-    do {
-        count++;
-        he = he->twin->next;
-    } while (he != halfedge);
-    
-    return count;
+    return static_cast<int>(outgoingHalfEdges().size());
 }
 
 bool Vertex::isBoundary() const {
     if (!halfedge) return true;
     
-    HalfEdge* he = halfedge;
-    do {
-        if (!he->face) return true;
-        he = he->twin->next;
-    } while (he != halfedge);
+    for (HalfEdge* he : outgoingHalfEdges()) if (he->isBoundary()) return true;
     
     return false;
 }
@@ -45,10 +36,11 @@ std::vector<HalfEdge*> Vertex::outgoingHalfEdges() const {
     if (!halfedge) return halfedges;
     
     HalfEdge* he = halfedge;
-    do {
+    std::set<const HalfEdge*> visited;
+    while (he && visited.insert(he).second) {
         halfedges.push_back(he);
-        he = he->twin->next;
-    } while (he != halfedge);
+        he = he->twin ? he->twin->next : nullptr;
+    }
     
     return halfedges;
 }
@@ -58,12 +50,13 @@ std::vector<Face*> Vertex::adjacentFaces() const {
     if (!halfedge) return faces;
     
     HalfEdge* he = halfedge;
-    do {
+    std::set<const HalfEdge*> visited;
+    while (he && visited.insert(he).second) {
         if (he->face) {
             faces.push_back(he->face);
         }
-        he = he->twin->next;
-    } while (he != halfedge);
+        he = he->twin ? he->twin->next : nullptr;
+    }
     
     return faces;
 }

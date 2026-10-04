@@ -1,77 +1,44 @@
-# Implementation Audit (v1.1.x Stabilization Pass)
+# Implementation Audit — v1.2.0 Candidate
 
-## 1) Implemented Algorithms by Language
+## Current capability
 
-| Algorithm | C++ | C# | Status |
+| Area | C++ | C# | Maturity |
 |---|:---:|:---:|---|
-| Cotan Laplacian | ✅ | ✅ | **Partial** |
-| Mean Curvature Flow | ✅ | ✅ | **Partial** |
-| Discrete Gaussian Curvature | ✅ | ✅ | **Partial** |
-| Conformal Parameterization | ✅ | ✅ | **Partial / Experimental** |
-| Heat Method | ✅ | ✅ | **Partial / Experimental** |
-| Hodge Decomposition | ✅ | ✅ | **Experimental** |
+| Explicit manifold boundary topology | Yes | Yes | Validated on closed and disk fixtures |
+| Cotan Laplacian and barycentric mass | Yes | Yes | Symmetric assembly; broader conditioning tests needed |
+| Constrained Poisson solve | Yes | Yes | Dense constraint elimination; suitable for educational-scale meshes |
+| Gaussian curvature | Yes | Yes | Interior and boundary angle defects; Gauss–Bonnet tests |
+| Mean curvature flow | Yes | Yes | Implemented; solver diagnostics and boundary policies need expansion |
+| Boundary-circle parameterization | Yes | Yes | Ordered, chord-length boundary with constrained harmonic solve |
+| Heat Method | Yes | Yes | Heat, normalized face gradient, weak divergence, anchored Poisson |
+| Hodge decomposition | Partial | Partial | Decomposition exists; harmonic bases and full DEC validation deferred |
+| Interactive web workbench | JS + optional WASM | — | Reference/educational surface |
 
-### Notes
-- C# `CotanLaplacian` previously used a fixed placeholder weight; now wired through edge cotangent computation, still requiring deeper validation on irregular meshes.
-- C# `HeatMethod` still has a placeholder divergence stage.
-- C# `ConformalParameterization.BoundaryCircle` still uses a partial constrained solve approach.
-- C++ `HodgeDecomposition` includes simplified Hodge star and placeholder tree-cotree behavior.
+## Correctness changes in this release
 
-## 2) Missing / Partial Algorithms
+- Every manifold edge owns two halfedges; open edges receive an explicit
+  boundary twin and boundary halfedges form closed loops.
+- Duplicate directed edges, non-manifold edges, invalid indices, degenerate
+  faces, and incomplete pointer relations are rejected or reported.
+- Cotangent weights are evaluated at the angle opposite each edge and inserted
+  symmetrically.
+- Boundary Gaussian curvature uses the \(\pi-\sum\theta\) defect, so disk
+  meshes satisfy Gauss–Bonnet.
+- Singular Poisson systems are anchored through explicit Dirichlet constraints.
+- The C# Heat Method no longer returns the zero-divergence placeholder result.
 
-- ARAP deformation: **Planned**
-- Reusable Poisson solver API: **Planned** (Poisson solve exists only as helper path in cotan module)
-- Robust harmonic basis generation: **Partial/Experimental**
-- Full DEC operator validation suite: **Partial**
+## Deliberately deferred
 
-## 3) Build Status
+- True least-squares conformal maps (the C++ entry point fails explicitly
+  instead of presenting a harmonic map as LSCM).
+- Harmonic one-form basis construction and tree–cotree generators.
+- ARAP deformation.
+- Production-scale sparse constraint elimination, preconditioners, and
+  cross-language golden datasets.
 
-| Component | Status | Evidence |
-|---|---|---|
-| C++ | Improved, now configures with existing tests list | Fixed broken test target references in `src/cpp/tests/CMakeLists.txt` |
-| C# | Builds cleanly | `dotnet build --configuration Release` |
-| Python | Minimal utilities only | `examples/python/visualize_mesh.py` |
-| Web/WASM | Workflow exists; demo pages available | `web/wasm-demo.html`, `web/wasm-benchmark.html` |
+## Verification
 
-## 4) Test Status / Gaps
-
-### Current strengths
-- Mesh construction/connectivity checks.
-- Laplacian dimensions, row sums, and symmetry checks.
-- Gauss-Bonnet sanity checks.
-
-### Gaps
-- Degenerate triangle stress tests are limited.
-- Invalid/non-manifold topology coverage remains limited.
-- Heat method and hodge decomposition need stronger numerical regression tests.
-- Cross-language parity tests are not formalized.
-
-## 5) README/Docs Drift Found and Corrected
-
-Corrected claims:
-- Removed “production-ready / complete / 95%+ coverage” style overclaims.
-- Removed references to missing `web/index.html`.
-- Corrected chapter and assignment availability references.
-- Added explicit maturity labels: **Complete / Partial / Experimental / Planned**.
-
-## 6) Numerical and Geometric Correctness Risks
-
-1. Orientation assumptions in halfedge traversal remain strict in many operators.
-2. Boundary and non-manifold treatment remains incomplete for advanced algorithms.
-3. Sparse solves do not consistently include rank-deficiency handling and conditioning diagnostics.
-4. Heat method divergence integration in C# remains incomplete.
-5. Hodge stars in both languages include simplified approximations.
-
-## 7) Priority Technical Debt
-
-1. Topology validation API (manifoldness, orientation consistency, duplicate edges).
-2. Robust boundary halfedge handling in both language cores.
-3. Centralized epsilon/tolerance policy for geometric predicates.
-4. Unified Poisson/linear-solve abstraction with failure diagnostics.
-5. Broader algorithm verification suite (sphere/grid/open meshes/degenerates).
-
-## 8) Suggested Roadmap Sequence
-
-1. **1.1.x stabilization**: mesh validation, tests, docs honesty, CI reliability.
-2. **1.2.0 feature expansion**: Poisson infrastructure + ARAP scaffold (explicitly experimental).
-3. **Post-1.2**: stronger DEC operator completeness, parity tests, richer tutorials and visual diagnostics.
+- Python: four dependency-free parser/topology tests.
+- JavaScript: syntax and deployed interaction checks.
+- Native compilation: required through the C++, C#, and WASM GitHub Actions
+  matrices because those toolchains are not available in the recovery runtime.

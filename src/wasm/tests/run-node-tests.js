@@ -67,7 +67,7 @@ DDGModule().then(module => {
     test('Mesh construction: Tetrahedron', () => {
         const mesh = new module.Mesh();
         const positions = new Float32Array([0,0,0, 1,0,0, 0,1,0, 0,0,1]);
-        const faces = new Int32Array([0,1,2, 0,1,3, 0,2,3, 1,2,3]);
+        const faces = new Int32Array([0,2,1, 0,1,3, 0,3,2, 1,2,3]);
         
         mesh.buildFromArrays(positions, faces);
         
@@ -81,7 +81,7 @@ DDGModule().then(module => {
     test('Gauss-Bonnet: Tetrahedron', () => {
         const mesh = new module.Mesh();
         const positions = new Float32Array([0,0,0, 1,0,0, 0,1,0, 0,0,1]);
-        const faces = new Int32Array([0,1,2, 0,1,3, 0,2,3, 1,2,3]);
+        const faces = new Int32Array([0,2,1, 0,1,3, 0,3,2, 1,2,3]);
         
         mesh.buildFromArrays(positions, faces);
         
@@ -95,7 +95,7 @@ DDGModule().then(module => {
     test('Gaussian curvature computation', () => {
         const mesh = new module.Mesh();
         const positions = new Float32Array([0,0,0, 1,0,0, 0,1,0, 0,0,1]);
-        const faces = new Int32Array([0,1,2, 0,1,3, 0,2,3, 1,2,3]);
+        const faces = new Int32Array([0,2,1, 0,1,3, 0,3,2, 1,2,3]);
         
         mesh.buildFromArrays(positions, faces);
         
@@ -113,7 +113,7 @@ DDGModule().then(module => {
     test('Mean curvature flow: Mesh updates', () => {
         const mesh = new module.Mesh();
         const positions = new Float32Array([0,0,0, 1,0,0, 0,1,0, 0,0,1]);
-        const faces = new Int32Array([0,1,2, 0,1,3, 0,2,3, 1,2,3]);
+        const faces = new Int32Array([0,2,1, 0,1,3, 0,3,2, 1,2,3]);
         
         mesh.buildFromArrays(positions, faces);
         
@@ -137,7 +137,7 @@ DDGModule().then(module => {
     test('Heat method: Distance to self is zero', () => {
         const mesh = new module.Mesh();
         const positions = new Float32Array([0,0,0, 1,0,0, 0,1,0, 0,0,1]);
-        const faces = new Int32Array([0,1,2, 0,1,3, 0,2,3, 1,2,3]);
+        const faces = new Int32Array([0,2,1, 0,1,3, 0,3,2, 1,2,3]);
         
         mesh.buildFromArrays(positions, faces);
         
@@ -150,7 +150,7 @@ DDGModule().then(module => {
     test('Heat method: Non-negative distances', () => {
         const mesh = new module.Mesh();
         const positions = new Float32Array([0,0,0, 1,0,0, 0,1,0, 0,0,1]);
-        const faces = new Int32Array([0,1,2, 0,1,3, 0,2,3, 1,2,3]);
+        const faces = new Int32Array([0,2,1, 0,1,3, 0,3,2, 1,2,3]);
         
         mesh.buildFromArrays(positions, faces);
         
@@ -190,7 +190,7 @@ DDGModule().then(module => {
     test('Conformal parameterization: Returns UV coords', () => {
         const mesh = new module.Mesh();
         const positions = new Float32Array([0,0,0, 1,0,0, 0,1,0, 0,0,1]);
-        const faces = new Int32Array([0,1,2, 0,1,3, 0,2,3, 1,2,3]);
+        const faces = new Int32Array([0,2,1, 0,1,3, 0,3,2, 1,2,3]);
         
         mesh.buildFromArrays(positions, faces);
         

@@ -126,5 +126,43 @@ namespace DDGCompanion.Tests
             var mesh = new Mesh();
             Assert.Throws<ArgumentOutOfRangeException>(() => mesh.Build(positions, faces));
         }
+
+        [Fact]
+        public void TestOpenMeshBuildsExplicitBoundaryLoop()
+        {
+            var positions = new[]
+            {
+                new Vector3(0, 0, 0),
+                new Vector3(1, 0, 0),
+                new Vector3(1, 1, 0),
+                new Vector3(0, 1, 0)
+            };
+            var faces = new int[,] { { 0, 1, 2 }, { 0, 2, 3 } };
+            var mesh = new Mesh();
+            mesh.Build(positions, faces);
+
+            Assert.Equal(5, mesh.Edges.Count);
+            Assert.Equal(10, mesh.HalfEdges.Count);
+            Assert.Equal(1, mesh.EulerCharacteristic());
+            Assert.Single(mesh.BoundaryLoops());
+            Assert.Equal(4, mesh.BoundaryLoops()[0].Count);
+            Assert.Empty(mesh.Validate());
+            Assert.All(mesh.Vertices, vertex => Assert.True(vertex.IsBoundary()));
+        }
+
+        [Fact]
+        public void TestBuildRejectsDuplicateDirectedEdge()
+        {
+            var positions = new[]
+            {
+                new Vector3(0, 0, 0),
+                new Vector3(1, 0, 0),
+                new Vector3(0, 1, 0),
+                new Vector3(0, -1, 0)
+            };
+            var faces = new int[,] { { 0, 1, 2 }, { 0, 1, 3 } };
+            var mesh = new Mesh();
+            Assert.Throws<ArgumentException>(() => mesh.Build(positions, faces));
+        }
     }
 }

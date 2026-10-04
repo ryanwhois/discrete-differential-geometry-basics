@@ -69,5 +69,21 @@ namespace DDGCompanion.Tests
             // Error should be small
             Assert.True(error < 0.1);
         }
+
+        [Fact]
+        public void TestGaussBonnetForOpenDisk()
+        {
+            var positions = new[]
+            {
+                new Vector3(0, 0, 0),
+                new Vector3(1, 0, 0),
+                new Vector3(1, 1, 0),
+                new Vector3(0, 1, 0)
+            };
+            var faces = new int[,] { { 0, 1, 2 }, { 0, 2, 3 } };
+            var mesh = new Mesh();
+            mesh.Build(positions, faces);
+            Assert.True(DiscreteGaussianCurvature.GaussBonnetError(mesh) < 1e-6);
+        }
     }
 }

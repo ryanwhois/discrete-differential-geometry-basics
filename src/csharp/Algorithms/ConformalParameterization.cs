@@ -50,28 +50,35 @@ namespace DDGCompanion.Algorithms
             int n = mesh.Vertices.Count;
             
             // Find boundary vertices
-            var boundaryVerts = mesh.Vertices
-                .Where(v => v.IsBoundary())
-                .Select(v => v.Index)
-                .ToList();
+            var boundary = mesh.BoundaryLoops()
+                .OrderByDescending(loop => loop.Count)
+                .FirstOrDefault();
             
-            if (!boundaryVerts.Any())
+            if (boundary == null || boundary.Count == 0)
             {
                 throw new InvalidOperationException("Mesh has no boundary - use spectral method");
             }
             
             // Map boundary to circle
-            var uv = new Vector2[n];
-            for (int i = 0; i < boundaryVerts.Count; i++)
+            var boundaryVerts = boundary.Select(v => v.Index).ToList();
+            var boundaryValues = Matrix<double>.Build.Dense(boundary.Count, 2);
+            double[] cumulative = new double[boundary.Count + 1];
+            for (int i = 0; i < boundary.Count; i++)
+                cumulative[i + 1] = cumulative[i] + Vector3.Distance(boundary[i].Position, boundary[(i + 1) % boundary.Count].Position);
+            if (cumulative[^1] <= 1e-12) throw new InvalidOperationException("Boundary perimeter is degenerate.");
+            for (int i = 0; i < boundary.Count; i++)
             {
-                double angle = 2.0 * Math.PI * i / boundaryVerts.Count;
-                int vIdx = boundaryVerts[i];
-                uv[vIdx] = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
+                double angle = 2.0 * Math.PI * cumulative[i] / cumulative[^1];
+                boundaryValues[i, 0] = Math.Cos(angle);
+                boundaryValues[i, 1] = Math.Sin(angle);
             }
-            
-            // Solve Laplace equation for interior (placeholder - needs proper solver)
-            // Full implementation requires solving constrained system
-            
+            var solved = CotanLaplacian.SolveConstrained(
+                L,
+                Matrix<double>.Build.Dense(n, 2),
+                boundaryVerts,
+                boundaryValues);
+            var uv = new Vector2[n];
+            for (int i = 0; i < n; i++) uv[i] = new Vector2((float)solved[i, 0], (float)solved[i, 1]);
             return uv;
         }
         

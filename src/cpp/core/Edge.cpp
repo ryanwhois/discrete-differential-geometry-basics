@@ -22,27 +22,17 @@ double Edge::length() const {
 }
 
 double Edge::cotan() const {
-    // Sum cotangents from both adjacent triangles
     double cotSum = 0.0;
-    
-    // Cotan from first triangle
-    if (halfedge->face) {
-        Eigen::Vector3d e1 = halfedge->vector();
-        Eigen::Vector3d e2 = halfedge->next->vector();
-        double cosAngle = e1.dot(e2) / (e1.norm() * e2.norm());
-        double sinAngle = e1.cross(e2).norm() / (e1.norm() * e2.norm());
-        cotSum += cosAngle / sinAngle;
+    for (HalfEdge* he : {halfedge, halfedge->twin}) {
+        if (!he || !he->face || !he->next || !he->next->next) continue;
+        const Eigen::Vector3d p0 = he->source()->position;
+        const Eigen::Vector3d p1 = he->target()->position;
+        const Eigen::Vector3d opposite = he->next->target()->position;
+        const Eigen::Vector3d a = p0 - opposite;
+        const Eigen::Vector3d b = p1 - opposite;
+        const double cross = a.cross(b).norm();
+        if (cross > 1e-14) cotSum += a.dot(b) / cross;
     }
-    
-    // Cotan from second triangle
-    if (halfedge->twin->face) {
-        Eigen::Vector3d e1 = halfedge->twin->vector();
-        Eigen::Vector3d e2 = halfedge->twin->next->vector();
-        double cosAngle = e1.dot(e2) / (e1.norm() * e2.norm());
-        double sinAngle = e1.cross(e2).norm() / (e1.norm() * e2.norm());
-        cotSum += cosAngle / sinAngle;
-    }
-    
     return cotSum / 2.0;
 }
 

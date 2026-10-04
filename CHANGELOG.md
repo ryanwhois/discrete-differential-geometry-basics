@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-05
+
+### Added
+- Explicit boundary halfedges, closed boundary-loop traversal, and topology validation in both mesh cores.
+- Constrained Poisson helpers, boundary-aware Gaussian curvature, and open-mesh Gauss–Bonnet tests.
+- Implemented C# Heat Method weak-divergence stage and boundary-circle constrained solve.
+- Dependency-free Python OBJ inspector with parser, topology, and degeneracy tests.
+- Responsive interactive DDG workbench with JavaScript fallback and optional WASM engine.
+- Root Vercel routing for the workbench.
+
+### Changed
+- Cotangent Laplacians are assembled once per undirected edge and are symmetric by construction.
+- Boundary-circle parameterization follows boundary order and uses chord-length spacing.
+- Project metadata now reports version 1.2.0.
+
+### Deferred
+- True LSCM, harmonic basis generation, ARAP, and formal cross-language parity datasets.
+
 ### Changed
 - Replaced overstated top-level docs with explicit maturity labels.
 - Updated C++/C#/WASM workflow action versions and corrected C# test execution path.

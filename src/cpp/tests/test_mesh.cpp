@@ -121,3 +121,41 @@ TEST_CASE("Mesh utilities", "[mesh][utils]") {
         REQUIRE_THAT(maxDist, Catch::Matchers::WithinAbs(1.0, 1e-10));
     }
 }
+
+TEST_CASE("Open meshes have explicit boundary loops", "[mesh][boundary]") {
+    Eigen::MatrixXd V(4, 3);
+    V << 0, 0, 0,
+         1, 0, 0,
+         1, 1, 0,
+         0, 1, 0;
+    Eigen::MatrixXi F(2, 3);
+    F << 0, 1, 2,
+         0, 2, 3;
+
+    Mesh mesh;
+    mesh.build(V, F);
+
+    REQUIRE(mesh.numEdges() == 5);
+    REQUIRE(mesh.halfedges.size() == 10);
+    REQUIRE(mesh.eulerCharacteristic() == 1);
+    REQUIRE(mesh.numBoundaryLoops() == 1);
+    REQUIRE(mesh.boundaryLoops().front().size() == 4);
+    REQUIRE(mesh.validate().empty());
+    for (const auto& vertex : mesh.vertices) {
+        REQUIRE(vertex->isBoundary());
+        REQUIRE(vertex->degree() >= 2);
+    }
+}
+
+TEST_CASE("Invalid topology is rejected", "[mesh][validation]") {
+    Eigen::MatrixXd V(4, 3);
+    V << 0, 0, 0,
+         1, 0, 0,
+         0, 1, 0,
+         0, -1, 0;
+    Eigen::MatrixXi duplicateDirected(2, 3);
+    duplicateDirected << 0, 1, 2,
+                         0, 1, 3;
+    Mesh mesh;
+    REQUIRE_THROWS(mesh.build(V, duplicateDirected));
+}

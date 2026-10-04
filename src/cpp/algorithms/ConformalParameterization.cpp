@@ -19,7 +19,7 @@ Eigen::MatrixXd ConformalParameterization::spectral(const Mesh& mesh) {
     // Solve generalized eigenvalue problem: L*phi = lambda*M*phi
     Eigen::MatrixXd eigenvectors;
     Eigen::VectorXd eigenvalues;
-    solveEigenProblem(L, M, eigenvectors, eigenvalues, 3);
+    solveEigenProblem(-L, M, eigenvectors, eigenvalues, 3);
     
     // Use 2nd and 3rd eigenvectors as conformal coordinates
     // (1st is constant, skip it)
@@ -31,25 +31,33 @@ Eigen::MatrixXd ConformalParameterization::spectral(const Mesh& mesh) {
 }
 
 Eigen::MatrixXd ConformalParameterization::boundaryCircle(const Mesh& mesh) {
+    constexpr double pi = 3.14159265358979323846;
     int n = mesh.numVertices();
     Eigen::SparseMatrix<double> L = CotanLaplacian::build(mesh);
     
-    // Find boundary vertices
-    std::vector<int> boundaryVerts;
-    for (const auto& v : mesh.vertices) {
-        if (v->isBoundary()) {
-            boundaryVerts.push_back(v->index);
-        }
-    }
-    
-    if (boundaryVerts.empty()) {
+    const auto loops = mesh.boundaryLoops();
+    if (loops.empty()) {
         throw std::runtime_error("Mesh has no boundary - use spectral method");
     }
+    const auto largest = std::max_element(
+        loops.begin(), loops.end(),
+        [](const auto& a, const auto& b) { return a.size() < b.size(); });
+    const auto& boundary = *largest;
+    std::vector<int> boundaryVerts;
+    boundaryVerts.reserve(boundary.size());
+    for (Vertex* v : boundary) boundaryVerts.push_back(v->index);
     
     // Map boundary to unit circle
     Eigen::MatrixXd boundaryUV(boundaryVerts.size(), 2);
+    std::vector<double> cumulative(boundary.size() + 1, 0.0);
+    for (size_t i = 0; i < boundary.size(); ++i) {
+        cumulative[i + 1] = cumulative[i] +
+            (boundary[(i + 1) % boundary.size()]->position - boundary[i]->position).norm();
+    }
+    const double perimeter = cumulative.back();
+    if (perimeter <= 1e-14) throw std::runtime_error("Boundary perimeter is degenerate");
     for (size_t i = 0; i < boundaryVerts.size(); i++) {
-        double angle = 2.0 * M_PI * i / boundaryVerts.size();
+        double angle = 2.0 * pi * cumulative[i] / perimeter;
         boundaryUV(i, 0) = std::cos(angle);
         boundaryUV(i, 1) = std::sin(angle);
     }
@@ -62,60 +70,17 @@ Eigen::MatrixXd ConformalParameterization::boundaryCircle(const Mesh& mesh) {
         uv.row(boundaryVerts[i]) = boundaryUV.row(i);
     }
     
-    // Build modified system for interior vertices
-    Eigen::SparseMatrix<double> A = L;
-    Eigen::MatrixXd b = Eigen::MatrixXd::Zero(n, 2);
-    
-    // Modify rows for boundary constraints
-    for (int bIdx : boundaryVerts) {
-        // Clear row and set diagonal to 1
-        for (Eigen::SparseMatrix<double>::InnerIterator it(A, bIdx); it; ++it) {
-            if (it.row() == bIdx) {
-                it.valueRef() = (it.col() == bIdx) ? 1.0 : 0.0;
-            }
-        }
-        b.row(bIdx) = uv.row(bIdx);
-    }
-    
-    // Solve system
-    Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
-    solver.compute(A);
-    uv = solver.solve(b);
-    
-    return uv;
+    return CotanLaplacian::solveConstrained(
+        L, Eigen::MatrixXd::Zero(n, 2), boundaryVerts, boundaryUV);
 }
 
 Eigen::MatrixXd ConformalParameterization::lscm(const Mesh& mesh,
                                                  const std::vector<int>& fixedVertices,
                                                  const Eigen::MatrixXd& fixedPositions) {
-    // Least Squares Conformal Maps implementation
-    // Minimizes conformal energy with soft constraints
-    
-    int n = mesh.numVertices();
-    Eigen::SparseMatrix<double> L = CotanLaplacian::build(mesh);
-    
-    // Add soft constraints for fixed vertices
-    double constraintWeight = 1e6;
-    std::vector<Eigen::Triplet<double>> triplets;
-    Eigen::MatrixXd rhs = Eigen::MatrixXd::Zero(n, 2);
-    
-    for (size_t i = 0; i < fixedVertices.size(); i++) {
-        int idx = fixedVertices[i];
-        triplets.push_back(Eigen::Triplet<double>(idx, idx, constraintWeight));
-        rhs.row(idx) = constraintWeight * fixedPositions.row(i);
-    }
-    
-    Eigen::SparseMatrix<double> constraints(n, n);
-    constraints.setFromTriplets(triplets.begin(), triplets.end());
-    
-    Eigen::SparseMatrix<double> A = L + constraints;
-    
-    // Solve system
-    Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
-    solver.compute(A);
-    Eigen::MatrixXd uv = solver.solve(rhs);
-    
-    return uv;
+    (void)mesh;
+    (void)fixedVertices;
+    (void)fixedPositions;
+    throw std::logic_error("True LSCM assembly is deferred; use boundaryCircle for disk topology");
 }
 
 double ConformalParameterization::dirichletEnergy(const Mesh& mesh, 

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Interactive discrete differential geometry workbench and course companion.">
+  <title>DDG Course Companion</title>
+  <link rel="stylesheet" href="/web/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#workbench" aria-label="DDG Course Companion home">DDG Course Companion</a>
+      <button class="menu-button" type="button" aria-expanded="false" aria-controls="primary-nav">
+        <span></span><span></span><span></span><span class="sr-only">Toggle navigation</span>
+      </button>
+      <nav id="primary-nav" class="primary-nav" aria-label="Primary navigation">
+        <a class="active" href="#workbench">Workbench</a>
+        <a href="#theory">Theory</a>
+        <a href="#algorithm-select">Algorithms</a>
+      </nav>
+      <a class="github-link" href="https://github.com/ryanwhois/discrete-differential-geometry-basics" target="_blank" rel="noreferrer">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.87c-2.78.6-3.37-1.18-3.37-1.18-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.9 1.53 2.35 1.09 2.92.83.09-.65.35-1.09.64-1.34-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02A9.56 9.56 0 0 1 12 6.82a9.5 9.5 0 0 1 2.5.34c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.86V21c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/></svg>
+        <span>GitHub</span>
+      </a>
+    </header>
+
+    <main id="workbench" class="workbench">
+      <aside class="control-rail" aria-label="Workbench controls">
+        <h2 class="rail-label">Controls</h2>
+
+        <label class="field-label" for="mesh-select">Mesh</label>
+        <div class="select-wrap">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 8 16H4L12 3Zm0 4.4L7.2 17h9.6L12 7.4Z"/></svg>
+          <select id="mesh-select">
+            <option value="tetrahedron">Tetrahedron</option>
+            <option value="octahedron">Octahedron</option>
+            <option value="open-grid">Open grid</option>
+          </select>
+        </div>
+
+        <label class="field-label" for="algorithm-select">Algorithm</label>
+        <div class="select-wrap">
+          <span class="sigma" aria-hidden="true">Σ</span>
+          <select id="algorithm-select">
+            <option value="gaussian">Gaussian curvature</option>
+            <option value="laplacian">Cotan Laplacian</option>
+            <option value="flow">Mean curvature flow</option>
+            <option value="heat">Heat method</option>
+            <option value="parameterization">Conformal parameterization</option>
+            <option value="hodge">Hodge decomposition</option>
+          </select>
+        </div>
+
+        <div class="numeric-control">
+          <h3>Numeric control</h3>
+          <div class="numeric-heading">
+            <label id="numeric-label" for="numeric-input">Angle defect tolerance (rad)</label>
+            <button class="help-button" type="button" aria-label="About this numeric control" title="Controls the display tolerance used by the active analysis.">?</button>
+          </div>
+          <div class="number-stepper">
+            <input id="numeric-input" type="text" inputmode="decimal" value="1.0e-6" aria-describedby="range-scale">
+            <button id="decrement" type="button" aria-label="Decrease value">−</button>
+            <button id="increment" type="button" aria-label="Increase value">+</button>
+          </div>
+          <input id="numeric-range" type="range" min="-12" max="-3" step="1" value="-6">
+          <div id="range-scale" class="range-scale"><span>1e-12</span><span>1e-9</span><span>1e-6</span><span>1e-3</span></div>
+        </div>
+
+        <button id="reset-button" class="secondary-button" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.34 5.66M20 4v7h-7"/></svg>
+          Reset
+        </button>
+        <button id="run-button" class="primary-button" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7V5Z"/></svg>
+          Run analysis
+        </button>
+
+        <div class="viewport-help">
+          <h3>Viewport help</h3>
+          <div class="help-row">
+            <svg viewBox="0 0 24 32" aria-hidden="true"><rect x="3" y="1" width="18" height="30" rx="8"/><path d="M12 1v10M8 8h8"/></svg>
+            <p>Orbit: drag<br>Pan: shift + drag<br>Zoom: scroll</p>
+          </div>
+        </div>
+      </aside>
+
+      <section class="viewport-panel" aria-label="Interactive mesh viewport">
+        <canvas id="mesh-canvas" tabindex="0" aria-label="Interactive triangulated mesh; drag to orbit and scroll to zoom"></canvas>
+        <div class="axis-gizmo" aria-hidden="true">
+          <span class="z">z</span><span class="y">y</span><span class="x">x</span>
+          <svg viewBox="0 0 88 76"><path class="axis-z" d="M34 56V12m0 0-5 8m5-8 5 8"/><path class="axis-y" d="m34 56 36-14m0 0-9-2m9 2-6 7"/><path class="axis-x" d="m34 56 33 18m0 0-5-8m5 8-10 1"/></svg>
+        </div>
+        <div class="legend" aria-label="Field legend">
+          <span id="legend-title">Gaussian curvature <i>K</i><sub>i</sub></span>
+          <div class="legend-bar"></div>
+          <div class="legend-scale"><span>−4π</span><span>−2π</span><span>0</span><span>2π</span><span>4π</span></div>
+        </div>
+        <div class="viewport-tools" aria-label="Viewport controls">
+          <button id="wireframe-button" type="button" class="active" aria-pressed="true" title="Toggle wireframe">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 9 5v10l-9 5-9-5V7l9-5Zm0 0v10m9-5-9 5-9-5m9 5v10"/></svg>
+          </button>
+          <button id="fit-button" type="button" title="Fit mesh">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M8 21H3v-5m13 5h5v-5"/></svg>
+          </button>
+          <button id="expand-button" type="button" title="Toggle fullscreen">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13 13h5v-5M3 8l6-6m6 20 6-6"/></svg>
+          </button>
+        </div>
+      </section>
+
+      <aside id="theory" class="theory-rail">
+        <section class="theory-section">
+          <p class="rail-label">Algorithm</p>
+          <h1 id="algorithm-title">Discrete Gaussian Curvature</h1>
+          <div id="algorithm-formula" class="formula" aria-label="Gaussian curvature formula">K<sub>i</sub> = 2π − Σ<sub>j</sub> θ<sub>ij</sub></div>
+          <div class="maturity-row"><span>Maturity</span><strong id="algorithm-maturity">Partial</strong></div>
+          <h2>Convention &amp; note</h2>
+          <p id="algorithm-note" class="theory-note">Angle defect at vertex <i>i</i>. Positive <i>K</i> on locally spherical regions, negative <i>K</i> on saddle regions. Boundary vertices use π as the reference angle.</p>
+        </section>
+        <section class="diagnostics-section">
+          <h2>Diagnostics</h2>
+          <dl>
+            <div><dt>Vertices</dt><dd id="metric-vertices">4</dd></div>
+            <div><dt>Edges</dt><dd id="metric-edges">6</dd></div>
+            <div><dt>Faces</dt><dd id="metric-faces">4</dd></div>
+            <div><dt>Euler χ</dt><dd id="metric-euler">2</dd></div>
+            <div><dt>Boundary loops</dt><dd id="metric-boundaries">0</dd></div>
+            <div><dt>Gauss–Bonnet error</dt><dd id="metric-gauss">0.00e+00</dd></div>
+          </dl>
+        </section>
+      </aside>
+    </main>
+
+    <footer class="statusbar" aria-live="polite">
+      <div class="ready-state"><span class="status-dot"></span><span id="ready-label">Ready</span></div>
+      <div class="status-context"><span id="status-mesh">Tetrahedron</span><span id="status-algorithm">Gaussian curvature</span><span id="status-parameter">Tolerance: 1.0e−6 rad</span></div>
+      <div class="status-computation"><span id="engine-label">Engine: JS reference</span><span id="computation-label">Computation: idle</span><span id="elapsed-label">00:00:00</span></div>
+    </footer>
+  </div>
+  <script type="module" src="/web/app.js"></script>
+</body>
+</html>

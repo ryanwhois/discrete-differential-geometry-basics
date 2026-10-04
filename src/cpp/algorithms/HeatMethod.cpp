@@ -6,12 +6,17 @@
 #include "CotanLaplacian.h"
 #include <Eigen/SparseLU>
 #include <cmath>
+#include <stdexcept>
 
 namespace ddg {
 
 Eigen::VectorXd HeatMethod::compute(const Mesh& mesh,
                                      const std::vector<int>& sourceVertices) {
     double timestep = computeTimestep(mesh);
+    if (sourceVertices.empty()) throw std::invalid_argument("At least one source vertex is required");
+    for (int source : sourceVertices) {
+        if (source < 0 || source >= static_cast<int>(mesh.numVertices())) throw std::out_of_range("Source vertex is outside the mesh");
+    }
     
     // Step 1: Diffuse heat from sources
     Eigen::VectorXd u = solveHeatFlow(mesh, sourceVertices, timestep);
@@ -42,6 +47,7 @@ double HeatMethod::computeTimestep(const Mesh& mesh) {
     for (const auto& e : mesh.edges) {
         meanEdgeLength += e->length();
     }
+    if (mesh.numEdges() == 0) throw std::invalid_argument("Heat method requires at least one edge");
     meanEdgeLength /= mesh.numEdges();
     
     return meanEdgeLength * meanEdgeLength;
@@ -66,7 +72,9 @@ Eigen::VectorXd HeatMethod::solveHeatFlow(const Mesh& mesh,
     // Solve system
     Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
     solver.compute(A);
+    if (solver.info() != Eigen::Success) throw std::runtime_error("Heat system factorization failed");
     Eigen::VectorXd u = solver.solve(rhs);
+    if (solver.info() != Eigen::Success || !u.allFinite()) throw std::runtime_error("Heat system solve failed");
     
     return u;
 }
@@ -95,29 +103,23 @@ Eigen::VectorXd HeatMethod::computeIntegratedDivergence(const Mesh& mesh,
         Eigen::Vector3d e2 = p2 - p0;
         Eigen::Vector3d N = e1.cross(e2);
         double area = 0.5 * N.norm();
+        if (area <= 1e-14) continue;
         N.normalize();
         
         // Gradient of u
         Eigen::Vector3d grad_u = ((u1 - u0) * e2.cross(N) + 
                                   (u2 - u0) * N.cross(e1)) / (2.0 * area);
         
-        // Normalize
         double gradNorm = grad_u.norm();
-        if (gradNorm > 1e-10) {
-            grad_u /= gradNorm;
-        }
-        
-        // Integrate divergence back to vertices
-        // Using cotan formula
-        auto halfedges = f->halfedges();
-        for (size_t j = 0; j < 3; j++) {
-            auto he = halfedges[j];
-            Eigen::Vector3d edge = he->vector();
-            double cotWeight = he->edge->cotan();
-            
-            div(he->twin->vertex->index) += 0.5 * cotWeight * edge.dot(grad_u);
-            div(he->vertex->index) -= 0.5 * cotWeight * edge.dot(grad_u);
-        }
+        if (gradNorm <= 1e-14) continue;
+        const Eigen::Vector3d X = -grad_u / gradNorm;
+
+        const Eigen::Vector3d gradPhi0 = N.cross(p2 - p1) / (2.0 * area);
+        const Eigen::Vector3d gradPhi1 = N.cross(p0 - p2) / (2.0 * area);
+        const Eigen::Vector3d gradPhi2 = N.cross(p1 - p0) / (2.0 * area);
+        div(i0) -= area * gradPhi0.dot(X);
+        div(i1) -= area * gradPhi1.dot(X);
+        div(i2) -= area * gradPhi2.dot(X);
     }
     
     return div;
@@ -127,13 +129,8 @@ Eigen::VectorXd HeatMethod::solveDistance(const Mesh& mesh,
                                           const Eigen::VectorXd& divergence) {
     // Solve Δφ = div
     Eigen::SparseMatrix<double> L = CotanLaplacian::build(mesh);
-    
-    // Neumann boundary conditions (implicit)
-    Eigen::SparseLU<Eigen::SparseMatrix<double>> solver;
-    solver.compute(L);
-    
-    Eigen::VectorXd phi = solver.solve(divergence);
-    
-    return phi;
+    Eigen::MatrixXd rhs = divergence;
+    return CotanLaplacian::solveConstrained(
+        L, rhs, {0}, Eigen::MatrixXd::Zero(1, 1)).col(0);
 }
 } // namespace ddg

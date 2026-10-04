@@ -27,42 +27,16 @@ namespace DDGCompanion.Core
         public double Cotan()
         {
             double cotSum = 0.0;
-            
-            // Cotan from first triangle
-            if (HalfEdge?.Face != null)
+            if (HalfEdge == null || HalfEdge.Twin == null) return 0.0;
+            foreach (var he in new[] { HalfEdge!, HalfEdge.Twin! })
             {
-                var e1 = HalfEdge.Vertex!.Position - HalfEdge.Twin!.Vertex!.Position;
-                var e2 = HalfEdge.Next!.Vertex!.Position - HalfEdge.Vertex.Position;
-                float denom = e1.Length() * e2.Length();
-                if (denom > 1e-12f)
-                {
-                    float cosAngle = Vector3.Dot(e1, e2) / denom;
-                    float sinAngle = Vector3.Cross(e1, e2).Length() / denom;
-                    if (Math.Abs(sinAngle) > 1e-12f)
-                    {
-                        cotSum += cosAngle / sinAngle;
-                    }
-                }
+                if (he.Face == null || he.Next?.Vertex == null || he.Source() == null || he.Vertex == null) continue;
+                var opposite = he.Next.Vertex.Position;
+                var a = he.Source()!.Position - opposite;
+                var b = he.Vertex.Position - opposite;
+                float cross = Vector3.Cross(a, b).Length();
+                if (cross > 1e-12f) cotSum += Vector3.Dot(a, b) / cross;
             }
-            
-            // Cotan from second triangle
-            if (HalfEdge?.Twin?.Face != null)
-            {
-                var twinHe = HalfEdge.Twin;
-                var e1 = twinHe.Vertex!.Position - twinHe.Twin!.Vertex!.Position;
-                var e2 = twinHe.Next!.Vertex!.Position - twinHe.Vertex.Position;
-                float denom = e1.Length() * e2.Length();
-                if (denom > 1e-12f)
-                {
-                    float cosAngle = Vector3.Dot(e1, e2) / denom;
-                    float sinAngle = Vector3.Cross(e1, e2).Length() / denom;
-                    if (Math.Abs(sinAngle) > 1e-12f)
-                    {
-                        cotSum += cosAngle / sinAngle;
-                    }
-                }
-            }
-            
             return cotSum / 2.0;
         }
         

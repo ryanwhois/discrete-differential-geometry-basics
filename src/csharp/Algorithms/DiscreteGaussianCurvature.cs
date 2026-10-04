@@ -24,14 +24,8 @@ namespace DDGCompanion.Algorithms
             for (int i = 0; i < mesh.Vertices.Count; i++)
             {
                 var v = mesh.Vertices[i];
-                if (v.IsBoundary()) continue;
-                
                 double angleSum = 0.0;
-                var he = v.HalfEdge;
-                if (he == null) continue;
-                var visited = new System.Collections.Generic.HashSet<int>();
-                
-                while (he != null && visited.Add(he.Index))
+                foreach (var he in v.OutgoingHalfEdges())
                 {
                     if (he.Face != null && he.Vertex != null && he.Next?.Vertex != null)
                     {
@@ -49,13 +43,8 @@ namespace DDGCompanion.Algorithms
                             angleSum += angle;
                         }
                     }
-                    if (he.Twin?.Next == null) break;
-                    he = he.Twin.Next;
-                    if (he == v.HalfEdge) break;
                 }
-                
-                // Angle defect formula
-                K[i] = 2.0 * Math.PI - angleSum;
+                K[i] = (v.IsBoundary() ? Math.PI : 2.0 * Math.PI) - angleSum;
             }
             
             return K;
