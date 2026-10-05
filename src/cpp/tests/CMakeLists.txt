@@ -15,6 +15,7 @@ FetchContent_MakeAvailable(Catch2)
 add_executable(ddg-tests
     test_mesh.cpp
     test_laplacian.cpp
+    test_curvature.cpp
 )
 
 target_link_libraries(ddg-tests

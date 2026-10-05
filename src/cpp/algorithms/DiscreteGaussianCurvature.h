@@ -9,4 +9,5 @@ public:
     
     // Compute total Gaussian curvature (should equal 2πχ)
     static double totalCurvature(const Mesh& mesh);
+    static double gaussBonnetError(const Mesh& mesh);
 };

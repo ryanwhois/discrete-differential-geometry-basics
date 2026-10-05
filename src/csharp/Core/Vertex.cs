@@ -67,5 +67,27 @@ namespace DDGCompanion.Core
             }
             return false;
         }
+
+        public List<HalfEdge> OutgoingHalfEdges()
+        {
+            var result = new List<HalfEdge>();
+            if (HalfEdge == null) return result;
+            var he = HalfEdge;
+            var visited = new HashSet<int>();
+            while (he != null && visited.Add(he.Index))
+            {
+                result.Add(he);
+                he = he.Twin?.Next;
+            }
+            return result;
+        }
+
+        public List<Face> AdjacentFaces()
+        {
+            var result = new List<Face>();
+            foreach (var he in OutgoingHalfEdges())
+                if (he.Face != null) result.Add(he.Face);
+            return result;
+        }
     }
 }

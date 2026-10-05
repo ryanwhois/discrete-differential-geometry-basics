@@ -37,7 +37,8 @@ namespace DDGCompanion.Core
             if (verts.Count != 3) return Vector3.Zero;
             var e1 = verts[1].Position - verts[0].Position;
             var e2 = verts[2].Position - verts[0].Position;
-            return Vector3.Normalize(Vector3.Cross(e1, e2));
+            var cross = Vector3.Cross(e1, e2);
+            return cross.LengthSquared() > 1e-20f ? Vector3.Normalize(cross) : Vector3.Zero;
         }
     }
 }

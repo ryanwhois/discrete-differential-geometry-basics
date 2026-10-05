@@ -6,6 +6,7 @@
 #include "algorithms/DiscreteGaussianCurvature.h"
 
 int main(int argc, char** argv) {
+    constexpr double pi = 3.14159265358979323846;
     std::cout << "DDG Course Companion - Demo Program\n";
     std::cout << "===================================\n\n";
     
@@ -42,7 +43,7 @@ int main(int argc, char** argv) {
     std::cout << "Computing Gaussian curvature...\n";
     Eigen::VectorXd K = DiscreteGaussianCurvature::compute(mesh);
     double totalK = DiscreteGaussianCurvature::totalCurvature(mesh);
-    double expectedK = 2 * M_PI * mesh.eulerCharacteristic();
+    double expectedK = 2 * pi * mesh.eulerCharacteristic();
     
     std::cout << "  Total curvature: " << totalK << "\n";
     std::cout << "  Expected (2πχ): " << expectedK << "\n";

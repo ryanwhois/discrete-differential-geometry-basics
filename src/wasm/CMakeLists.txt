@@ -4,7 +4,7 @@
 # Description: Compile C++ DDG algorithms to WebAssembly using Emscripten
 
 cmake_minimum_required(VERSION 3.15)
-project(DDGWebAssembly VERSION 1.0.0)
+project(DDGWebAssembly VERSION 1.2.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -19,7 +19,7 @@ if(EMSCRIPTEN)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s MODULARIZE=1")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s EXPORT_NAME='DDGModule'")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap']")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s ENVIRONMENT='web'")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s ENVIRONMENT='web,node'")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --bind")
     
     # Optimization flags

@@ -115,7 +115,7 @@ function runTests(module) {
         ]);
         
         const faces = new Int32Array([
-            0, 1, 2, 0, 1, 3, 0, 2, 3, 1, 2, 3
+            0, 2, 1, 0, 1, 3, 0, 3, 2, 1, 2, 3
         ]);
         
         mesh.buildFromArrays(positions, faces);
@@ -135,7 +135,7 @@ function runTests(module) {
         const positions = new Float32Array([
             0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1
         ]);
-        const faces = new Int32Array([0, 1, 2, 0, 1, 3, 0, 2, 3, 1, 2, 3]);
+        const faces = new Int32Array([0, 2, 1, 0, 1, 3, 0, 3, 2, 1, 2, 3]);
         
         mesh.buildFromArrays(positions, faces);
         
@@ -207,7 +207,7 @@ function runTests(module) {
         const positions = new Float32Array([
             0, 0, 0, 1, 0, 0, 0.5, 0.9, 0, 0.5, 0.3, 0.8
         ]);
-        const faces = new Int32Array([0, 1, 2, 0, 1, 3, 0, 2, 3, 1, 2, 3]);
+        const faces = new Int32Array([0, 2, 1, 0, 1, 3, 0, 3, 2, 1, 2, 3]);
         
         mesh.buildFromArrays(positions, faces);
         
@@ -222,7 +222,7 @@ function runTests(module) {
         const positions = new Float32Array([
             0, 0, 0, 1, 0, 0, 0.5, 0.9, 0, 0.5, 0.3, 0.8
         ]);
-        const faces = new Int32Array([0, 1, 2, 0, 1, 3, 0, 2, 3, 1, 2, 3]);
+        const faces = new Int32Array([0, 2, 1, 0, 1, 3, 0, 3, 2, 1, 2, 3]);
         
         mesh.buildFromArrays(positions, faces);
         

@@ -7,9 +7,8 @@
 #include "../core/Mesh.h"
 #include "../algorithms/DiscreteGaussianCurvature.h"
 
-using namespace ddg;
-
 int main() {
+    constexpr double pi = 3.14159265358979323846;
     std::cout << "DDG Example: Curvature Analysis\n";
     std::cout << "================================\n\n";
     
@@ -47,12 +46,12 @@ int main() {
     std::cout << "Gaussian Curvature per vertex:\n";
     for (int i = 0; i < K.size(); i++) {
         std::cout << "  v[" << i << "]: K = " << K(i) 
-                  << " (" << (K(i) * 180.0 / M_PI) << "°)" << std::endl;
+                  << " (" << (K(i) * 180.0 / pi) << "°)" << std::endl;
     }
     
     // Verify Gauss-Bonnet theorem
     double totalK = DiscreteGaussianCurvature::totalCurvature(mesh);
-    double expectedK = 2.0 * M_PI * mesh.eulerCharacteristic();
+    double expectedK = 2.0 * pi * mesh.eulerCharacteristic();
     
     std::cout << "\nGauss-Bonnet Verification:\n";
     std::cout << "  Total curvature: " << totalK << std::endl;

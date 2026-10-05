@@ -4,19 +4,20 @@ Companion implementations and notes for Keenan Crane's *Discrete Differential Ge
 
 > Current state: educational and improving, not production-complete.
 
-[![C++ Build](https://github.com/rhughes42/discrete-differential-geometry-basics/actions/workflows/cpp-build.yml/badge.svg)](https://github.com/rhughes42/discrete-differential-geometry-basics/actions/workflows/cpp-build.yml)
-[![C# Build](https://github.com/rhughes42/discrete-differential-geometry-basics/actions/workflows/csharp-build.yml/badge.svg)](https://github.com/rhughes42/discrete-differential-geometry-basics/actions/workflows/csharp-build.yml)
-[![WASM Build](https://github.com/rhughes42/discrete-differential-geometry-basics/actions/workflows/wasm-build.yml/badge.svg)](https://github.com/rhughes42/discrete-differential-geometry-basics/actions/workflows/wasm-build.yml)
+[![C++ Build](https://github.com/ryanwhois/discrete-differential-geometry-basics/actions/workflows/cpp-build.yml/badge.svg)](https://github.com/ryanwhois/discrete-differential-geometry-basics/actions/workflows/cpp-build.yml)
+[![C# Build](https://github.com/ryanwhois/discrete-differential-geometry-basics/actions/workflows/csharp-build.yml/badge.svg)](https://github.com/ryanwhois/discrete-differential-geometry-basics/actions/workflows/csharp-build.yml)
+[![WASM Build](https://github.com/ryanwhois/discrete-differential-geometry-basics/actions/workflows/wasm-build.yml/badge.svg)](https://github.com/ryanwhois/discrete-differential-geometry-basics/actions/workflows/wasm-build.yml)
+[![Python Checks](https://github.com/ryanwhois/discrete-differential-geometry-basics/actions/workflows/python-checks.yml/badge.svg)](https://github.com/ryanwhois/discrete-differential-geometry-basics/actions/workflows/python-checks.yml)
 
 ## Status Snapshot
 
 | Area | Status | Notes |
 |---|---|---|
-| C++ core mesh + DDG algorithms | **Partial** | Implemented and buildable; some algorithms use simplified operators/solvers |
-| C# core mesh + DDG algorithms | **Partial** | All six algorithm modules exist; several contain placeholder/simplified steps |
-| Python tooling | **Experimental** | Lightweight visualization script only |
-| Web companion | **Experimental** | WASM demo/benchmark pages, no full `web/index.html` app |
-| Test coverage | **Partial** | Good basic unit tests; limited degeneracy/non-manifold stress coverage |
+| C++ core mesh + DDG algorithms | **Partial** | Boundary-safe topology, symmetric cotan operators, constrained solves; Hodge bases remain experimental |
+| C# core mesh + DDG algorithms | **Partial** | Boundary-safe parity for topology, curvature, Laplacian, Heat divergence, and boundary mapping |
+| Python tooling | **Supported utility** | Dependency-free OBJ topology inspector plus optional visualizer |
+| Web companion | **Interactive reference** | Responsive workbench with a JS reference engine and optional WASM acceleration |
+| Test coverage | **Partial** | Closed/open topology and Gauss–Bonnet coverage; broader parity datasets remain future work |
 
 See `docs/status/IMPLEMENTATION_AUDIT.md` for the detailed audit.
 
@@ -57,7 +58,9 @@ dotnet test --configuration Release
 
 ### WebAssembly
 
-WASM bindings and demos live under `src/wasm/` and `web/wasm-demo.html` / `web/wasm-benchmark.html`.
+WASM bindings and demos live under `src/wasm/`. Open `web/index.html` for
+the interactive workbench; it falls back honestly to the JavaScript reference
+engine when compiled WASM artifacts are absent.
 
 ## Repository Layout
 
@@ -67,7 +70,7 @@ src/csharp/     C# core mesh, algorithms, tests, CLI examples
 src/wasm/       Emscripten bindings and wasm build config
 docs/           Chapters, formulas, assignments, tutorials, status docs
 examples/       Example usage notes and Python helper script
-web/            Static WASM demo pages
+web/            Interactive scientific workbench and legacy WASM pages
 ```
 
 ## Documentation
@@ -82,17 +85,15 @@ web/            Static WASM demo pages
 
 ## Roadmap (Realistic)
 
-### 1.1.x Stabilization (current)
-- Mesh robustness and topology validation improvements
-- Build/test reliability fixes
-- Documentation honesty and audit coverage
-- Better numerical safeguards in current algorithms
+### 1.2.0 release candidate
+- Explicit boundary halfedges and topology validation in C++ and C#
+- Symmetric cotan assembly and constrained Poisson infrastructure
+- Boundary-aware curvature, Heat divergence, and harmonic disk mapping
+- Dependency-free Python inspection and an interactive web workbench
 
-### 1.2.0 Target
-- Reusable Poisson solve infrastructure
-- ARAP deformation scaffold (explicitly experimental)
-- Expanded degeneracy/non-manifold test set
-- Better parity notes across C++/C#/WASM
+### Later
+- True LSCM assembly, harmonic basis generation, and ARAP deformation
+- Cross-language parity datasets and larger numerical regression suites
 
 ## Contributing
 

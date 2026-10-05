@@ -10,7 +10,7 @@
     <LangVersion>latest</LangVersion>
     <AssemblyName>DDGCompanion</AssemblyName>
     <RootNamespace>DDGCompanion</RootNamespace>
-    <Version>1.0.0</Version>
+    <Version>1.2.0</Version>
     <Authors>Graph Technologies</Authors>
     <Company>Graph Technologies</Company>
     <Product>DDG Course Companion</Product>

@@ -3,7 +3,7 @@
 # Added by Graph Technologies, 2025
 
 cmake_minimum_required(VERSION 3.15)
-project(DDGCourseCompanion VERSION 1.0.0 LANGUAGES CXX)
+project(DDGCourseCompanion VERSION 1.2.0 LANGUAGES CXX)
 
 # C++ Standard
 set(CMAKE_CXX_STANDARD 17)
@@ -29,7 +29,31 @@ function(ddg_enable_warnings target_name)
 endfunction()
 
 # Find Eigen3
-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+find_package(Eigen3 3.3 QUIET NO_MODULE)
+if(NOT Eigen3_FOUND)
+    include(FetchContent)
+
+    # Eigen enables its large upstream test suite by default.  Keep those tests
+    # out of this project's CTest tree when Eigen is used as a fallback.
+    if(DEFINED BUILD_TESTING)
+        set(DDG_SAVED_BUILD_TESTING "${BUILD_TESTING}")
+        set(DDG_BUILD_TESTING_WAS_DEFINED ON)
+    endif()
+    set(BUILD_TESTING OFF CACHE BOOL "Build upstream dependency tests" FORCE)
+
+    FetchContent_Declare(
+        eigen
+        URL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz
+        URL_HASH SHA256=8586084f71f9bde545ee7fa6d00288b264a2b7ac3607b974e54d13e7162c1c72
+    )
+    FetchContent_MakeAvailable(eigen)
+
+    if(DDG_BUILD_TESTING_WAS_DEFINED)
+        set(BUILD_TESTING "${DDG_SAVED_BUILD_TESTING}" CACHE BOOL "Build tests" FORCE)
+    else()
+        unset(BUILD_TESTING CACHE)
+    endif()
+endif()
 
 # Core library
 file(GLOB_RECURSE CORE_SOURCES "core/*.cpp")

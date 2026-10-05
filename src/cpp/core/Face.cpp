@@ -37,10 +37,12 @@ Eigen::Vector3d Face::normal() const {
     auto verts = vertices();
     Eigen::Vector3d e1 = verts[1]->position - verts[0]->position;
     Eigen::Vector3d e2 = verts[2]->position - verts[0]->position;
-    return e1.cross(e2).normalized();
+    const Eigen::Vector3d n = e1.cross(e2);
+    return n.norm() > 1e-14 ? n.normalized() : Eigen::Vector3d::Zero();
 }
 
 bool Face::isTriangle() const {
     if (!halfedge) return false;
-    return halfedge->next->next->next == halfedge;
+    return halfedge->next && halfedge->next->next &&
+           halfedge->next->next->next == halfedge;
 }
