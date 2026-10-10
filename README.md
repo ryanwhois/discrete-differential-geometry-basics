@@ -7,10 +7,10 @@ or fabrication workflow.
 
 > Current state: an early, usable foundation. GeometryKit supplies analysis and support geometry; it is not a B-Rep CAD kernel or an authoritative document model.
 
-[![C++ Build](https://github.com/ryanwhois/GeometryKit/actions/workflows/cpp-build.yml/badge.svg)](https://github.com/ryanwhois/GeometryKit/actions/workflows/cpp-build.yml)
-[![C# Build](https://github.com/ryanwhois/GeometryKit/actions/workflows/csharp-build.yml/badge.svg)](https://github.com/ryanwhois/GeometryKit/actions/workflows/csharp-build.yml)
-[![WASM Build](https://github.com/ryanwhois/GeometryKit/actions/workflows/wasm-build.yml/badge.svg)](https://github.com/ryanwhois/GeometryKit/actions/workflows/wasm-build.yml)
-[![Python Checks](https://github.com/ryanwhois/GeometryKit/actions/workflows/python-checks.yml/badge.svg)](https://github.com/ryanwhois/GeometryKit/actions/workflows/python-checks.yml)
+[![C++ Build](https://github.com/ryanwhois/discrete-differential-geometry-basics/actions/workflows/cpp-build.yml/badge.svg)](https://github.com/ryanwhois/discrete-differential-geometry-basics/actions/workflows/cpp-build.yml)
+[![C# Build](https://github.com/ryanwhois/discrete-differential-geometry-basics/actions/workflows/csharp-build.yml/badge.svg)](https://github.com/ryanwhois/discrete-differential-geometry-basics/actions/workflows/csharp-build.yml)
+[![WASM Build](https://github.com/ryanwhois/discrete-differential-geometry-basics/actions/workflows/wasm-build.yml/badge.svg)](https://github.com/ryanwhois/discrete-differential-geometry-basics/actions/workflows/wasm-build.yml)
+[![Python Checks](https://github.com/ryanwhois/discrete-differential-geometry-basics/actions/workflows/python-checks.yml/badge.svg)](https://github.com/ryanwhois/discrete-differential-geometry-basics/actions/workflows/python-checks.yml)
 
 ## The need it serves
 
