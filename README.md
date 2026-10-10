@@ -17,6 +17,7 @@ Companion implementations and notes for Keenan Crane's *Discrete Differential Ge
 | C# core mesh + DDG algorithms | **Partial** | Boundary-safe parity for topology, curvature, Laplacian, Heat divergence, and boundary mapping |
 | Python tooling | **Supported utility** | Dependency-free OBJ topology inspector plus optional visualizer |
 | Web companion | **Interactive reference** | Responsive workbench with a JS reference engine and optional WASM acceleration |
+| GeometryKit (.NET) | **Foundation** | Double-precision mesh health, spatial queries, DDG fields and fabrication-support outputs |
 | Test coverage | **Partial** | Closed/open topology and Gauss–Bonnet coverage; broader parity datasets remain future work |
 
 See `docs/status/IMPLEMENTATION_AUDIT.md` for the detailed audit.
@@ -67,6 +68,8 @@ engine when compiled WASM artifacts are absent.
 ```text
 src/cpp/        C++ core mesh, algorithms, tests, examples
 src/csharp/     C# core mesh, algorithms, tests, CLI examples
+src/csharp/GeometryKit/ Reusable double-precision mesh geometry library
+src/csharp/GeometryKit.Tests/ Executable specifications for GeometryKit workflows
 src/wasm/       Emscripten bindings and wasm build config
 docs/           Chapters, formulas, assignments, tutorials, status docs
 examples/       Example usage notes and Python helper script
@@ -82,6 +85,7 @@ web/            Interactive scientific workbench and legacy WASM pages
 - `docs/tutorials/README.md`
 - `docs/status/IMPLEMENTATION_AUDIT.md`
 - `docs/status/NEXT_RELEASE_PLAN.md`
+- `docs/geometrykit/README.md`
 
 ## Roadmap (Realistic)
 

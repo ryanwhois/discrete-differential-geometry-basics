@@ -25,13 +25,18 @@ jobs:
       run: |
         cd src/csharp
         dotnet restore
+        dotnet restore GeometryKit/GeometryKit.csproj
+        dotnet restore GeometryKit.Tests/GeometryKit.Tests.csproj
     
     - name: Build
       run: |
         cd src/csharp
         dotnet build --configuration Release --no-restore
+        dotnet build GeometryKit/GeometryKit.csproj --configuration Release --no-restore
     
     - name: Run Tests
       run: |
         cd src/csharp/Tests
+        dotnet test --configuration Release --verbosity normal
+        cd ../GeometryKit.Tests
         dotnet test --configuration Release --verbosity normal

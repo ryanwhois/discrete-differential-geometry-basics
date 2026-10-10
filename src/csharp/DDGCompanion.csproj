@@ -23,6 +23,12 @@
     <Compile Remove="Tests\**" />
     <EmbeddedResource Remove="Tests\**" />
     <None Remove="Tests\**" />
+    <Compile Remove="GeometryKit\**" />
+    <EmbeddedResource Remove="GeometryKit\**" />
+    <None Remove="GeometryKit\**" />
+    <Compile Remove="GeometryKit.Tests\**" />
+    <EmbeddedResource Remove="GeometryKit.Tests\**" />
+    <None Remove="GeometryKit.Tests\**" />
   </ItemGroup>
 
   <ItemGroup>

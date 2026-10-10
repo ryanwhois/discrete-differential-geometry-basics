@@ -1,5 +1,13 @@
 # Documentation Index
 
+## GeometryKit
+
+- [GeometryKit overview](geometrykit/README.md)
+- [Architecture decisions](geometrykit/adr/)
+- [Mesh health and spatial-query mathematics](geometrykit/mathematics/mesh-health-and-spatial-queries.md)
+- [Discrete differential-analysis mathematics](geometrykit/mathematics/differential-analysis.md)
+- [Fabrication-support mathematics](geometrykit/mathematics/fabrication-support.md)
+
 ## Core
 - [Algorithm Reference](algorithms/README.md)
 - [Formula Reference](formulas/index.md)
