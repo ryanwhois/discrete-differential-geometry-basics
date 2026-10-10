@@ -1,8 +1,13 @@
 # GeometryKit
 
-GeometryKit is the production-oriented C# track beside the DDG course companion. It focuses on
-derived triangle-mesh work: health checks, spatial queries, discrete surface analysis and
-fabrication-support outputs. It is **not** a B-Rep CAD kernel and it does not own a host document.
+GeometryKit began as a companion kit for Keenan Crane's *Discrete Differential Geometry* course.
+The course work exposed a practical need that this library now addresses: a host-neutral,
+double-precision C# layer for analysing and preparing **derived triangle meshes** without making
+a mesh the authority for the original CAD model.
+
+It is intended for the stage between a host application's tessellation and a mesh-based operation:
+validation, picking or projection, discrete-surface fields, slicing and remeshing guidance. It is
+**not** a B-Rep CAD kernel and it does not own a host document.
 
 ## Implemented vertical slice
 
