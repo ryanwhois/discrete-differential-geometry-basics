@@ -1,66 +1,55 @@
-# DDG Course Companion - Project Summary
+# GeometryKit — Project Summary
 
-This repository is an educational DDG implementation project with C++, C#, and WASM components plus supporting docs.
+GeometryKit started as a companion kit for Keenan Crane's *Discrete Differential Geometry* course.
+It is becoming a focused C# library for derived triangle-mesh workflows: health assessment, spatial
+queries, surface analysis and fabrication support. The original C++, C# and WASM course material
+remains as an educational and experimental reference layer.
 
-## Technical Reality (v1.1.x pre-release state)
+## Technical reality
 
-- Core mesh structures exist in C++ and C#.
-- Six major DDG algorithm modules exist in both languages.
-- Several implementations are still simplified or partial (especially conformal/heat/hodge internals in C# and hodge internals in C++).
-- CI workflows exist for C++, C#, and WASM.
-- Unit tests cover core mesh/laplacian/curvature properties but do not yet fully cover all robustness scenarios.
+- `src/csharp/GeometryKit` is the primary reusable library, with double-precision public geometry
+  types and an immutable triangle-mesh boundary.
+- It currently supports mesh health reports, closest-point and ray queries, Gaussian curvature,
+  graph geodesics, planar section segments and curvature-driven sizing fields.
+- The original DDG implementations in C++ and C# provide useful mathematical reference material,
+  but several algorithms remain partial or experimental.
+- CI validates C++, C#, Python and WASM builds; GeometryKit has its own workflow tests.
 
-## Maturity Labels
+## Boundaries
+
+GeometryKit analyses derived meshes. A CAD host remains authoritative for B-Reps, feature history,
+exact edits and exchange formats. The library does not promise lossless mesh-to-B-Rep conversion.
+
+## Maturity labels
 
 | Label | Meaning |
 |---|---|
-| Complete | Implemented, tested, and robust for expected educational/engineering usage |
-| Partial | Implemented with known correctness/robustness/test gaps |
-| Experimental | Early scaffold, incomplete numerics/topology handling |
-| Planned | Intended but not implemented |
+| Foundation | A small, coherent public API with workflow tests; further robustness and breadth are planned. |
+| Partial | Implemented with known correctness, robustness or test gaps. |
+| Experimental | Early scaffold or incomplete numerical/topology handling. |
+| Planned | Intended but not implemented. |
 
-## Algorithm Matrix
+## Build and test
 
-| Algorithm | C++ | C# | Current Maturity |
-|---|:---:|:---:|---|
-| Cotan Laplacian | ✅ | ✅ | Partial |
-| Mean Curvature Flow | ✅ | ✅ | Partial |
-| Discrete Gaussian Curvature | ✅ | ✅ | Partial |
-| Conformal Parameterization | ✅ | ✅ | Partial/Experimental |
-| Heat Method | ✅ | ✅ | Partial/Experimental |
-| Hodge Decomposition | ✅ | ✅ | Experimental |
+### GeometryKit
 
-## Build and Test Commands
-
-### C++
 ```bash
-cd src/cpp
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j4
-cd build
-ctest --output-on-failure
+dotnet test src/csharp/GeometryKit.Tests/GeometryKit.Tests.csproj
 ```
 
-### C#
-```bash
-cd src/csharp
-dotnet restore
-dotnet build --configuration Release
-cd Tests
-dotnet test --configuration Release
-```
+### Course companion and reference tools
 
-### WASM
-```bash
-cd src/wasm
-./build.sh
-```
+The C++, original C# companion and WASM build instructions remain in their source directories and
+in the documentation index. They are maintained as reference material while GeometryKit becomes
+the primary C# API.
 
-## High-Priority Next Steps
+## Development direction
 
-1. Complete robust topology validation and degeneracy handling.
-2. Tighten numerical safety around sparse solves and cotangent assembly.
-3. Add reusable Poisson infrastructure and stronger regression tests.
-4. Keep docs and maturity labels synchronized with implementation reality.
+1. Stabilise the mesh-health and spatial-query contracts.
+2. Introduce established mesh-library adapters behind GeometryKit types.
+3. Add sparse-solver-backed geodesics and tolerance-aware section stitching.
+4. Add constrained remeshing that consumes the sizing field.
 
-See `docs/status/IMPLEMENTATION_AUDIT.md` and `docs/status/NEXT_RELEASE_PLAN.md`.
+See [the GeometryKit overview](docs/geometrykit/README.md),
+[architecture decisions](docs/geometrykit/adr/), and the
+[implementation audit](docs/status/IMPLEMENTATION_AUDIT.md).

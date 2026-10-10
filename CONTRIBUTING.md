@@ -1,10 +1,11 @@
 # Contributing
 
-Thanks for improving the DDG Course Companion.
+Thanks for improving GeometryKit and its DDG reference material.
 
 ## Scope
 
 Prioritize:
+- GeometryKit public-API clarity and host-neutral boundaries,
 - algorithm correctness,
 - numerical robustness,
 - topology validation,

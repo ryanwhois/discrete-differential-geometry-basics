@@ -2,8 +2,9 @@
 
 ## Objective
 
-Turn the repository from a collection of educational implementations into a
-coherent, testable DDG course companion without overstating numerical maturity.
+Preserve the DDG course companion as reference material while growing GeometryKit into a
+coherent, testable C# toolkit for derived triangle-mesh workflows, without overstating
+numerical maturity.
 
 ## Completed dependency order
 
