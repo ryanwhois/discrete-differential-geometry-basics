@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>GeometryKit</AssemblyName>
+    <RootNamespace>GeometryKit</RootNamespace>
+    <Description>Double-precision mesh geometry, analysis and fabrication-support primitives.</Description>
+  </PropertyGroup>
+</Project>
